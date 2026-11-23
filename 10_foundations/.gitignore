@@ -1,0 +1,9 @@
+# Environment / secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Agent output
+emails_log.txt
