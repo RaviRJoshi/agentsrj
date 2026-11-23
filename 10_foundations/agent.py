@@ -56,8 +56,7 @@ def chat(client: OpenAI, messages: list[dict]) -> str:
         message = response.choices[0].message
 
         # No tool calls requested -> we are done.
-        if not message.tool_calls:
-            return message.content or ""
+        if not message.tool_calls: return message.content or ""
 
         # Record the assistant's tool-call turn, then run each tool.
         messages.append(message)

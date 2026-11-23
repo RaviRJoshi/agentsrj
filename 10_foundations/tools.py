@@ -84,3 +84,10 @@ def geography_lookup(place: str) -> str:
         f"{place.title()}: capital {facts['capital']}, "
         f"continent {facts['continent']}, population ~{facts['population']}."
     )
+
+def geography_lookup(place: str) -> str:
+    """Look up a geography fact for a country or place.
+
+    Args:
+        place: Country or place name, e.g. 'Japan'.
+    
