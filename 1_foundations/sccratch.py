@@ -103,18 +103,41 @@ def execute_tool(tool_call):
 
 # %%
 def chat(message, history):
+    history.append({"role": "user", "content": message})
 
-    messagesToLlm = [{"role": "system", "content": system_prompt}] + history + [{"role": "user", "content": message}]
-    responseFromLlm = openai.chat.completions.create(model="gpt-5.4", messages = messagesToLlm, tools=tools)
-    assistant_message = responseFromLlm.choices[0].message
+    max_iterations = 10
+    for _ in range(max_iterations):
+        messagesToLlm = [{"role": "system", "content": system_prompt}] + history
+        responseFromLlm = openai.chat.completions.create(
+            model="gpt-5.4",
+            messages=messagesToLlm,
+            tools=tools,
+        )
+        assistant_message = responseFromLlm.choices[0].message
 
-    
-    if assistant_message.tool_calls:
-        print( "Tool Execution Needed")
-        for tool_call in assistant_message.tool_calls:
-            return execute_tool(tool_call)
+        if assistant_message.tool_calls:
+            print("Tool Execution Needed")
+            # Record the assistant's tool-call request in history
+            history.append(assistant_message.model_dump(exclude_none=True))
 
-    return assistant_message.content
+            # Execute every requested tool and append each result linked by tool_call_id
+            for tool_call in assistant_message.tool_calls:
+                try:
+                    result = execute_tool(tool_call)
+                    tool_output = json.dumps({"success": True, "result": result})
+                except Exception as e:
+                    tool_output = json.dumps({"success": False, "error": str(e)})
+
+                history.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "content": tool_output,
+                })
+        else:
+            history.append({"role": "assistant", "content": assistant_message.content})
+            return assistant_message.content
+
+    return "Maximum tool execution iterations reached."
 
          
 
@@ -132,7 +155,7 @@ def Test():
 #  %%
 if __name__ == "__main__":
     Test()
-
+    print(history)
 
 
     #  while True:
