@@ -61,7 +61,7 @@ def chat(client: OpenAI, messages: list[dict]) -> str:
         messages.append(message)
         for call in message.tool_calls:
             args = json.loads(call.function.arguments or "{}")
-            try:
+            try:    
                 result = run_tool(call.function.name, args)
             except Exception as exc:  # surface errors back to the model
                 result = f"Error calling {call.function.name}: {exc}"

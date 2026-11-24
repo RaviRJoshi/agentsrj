@@ -3,12 +3,19 @@ import inspect
 import typing
 import json
 
-
+# ___________________
 def process_numbers(a: int, b: int) -> int:
     total = a + b
     if total > 100:
         return a * b
     return total
+
+def record_email_tool(email):
+	print(f"Tool called to record an email: {email}")
+	with open("emails.txt", "a", encoding="utf-8") as f:
+		f.write(email + "\n")
+	return "Email Received"
+
 
 
 def python_type_to_json_type(annotation):
@@ -59,4 +66,7 @@ def function_to_tool(func):
 
 if __name__ == "__main__":
     tool_schema = function_to_tool(process_numbers)
+    print(json.dumps(tool_schema, indent=2))
+
+    tool_schema = function_to_tool (record_email_tool)
     print(json.dumps(tool_schema, indent=2))
