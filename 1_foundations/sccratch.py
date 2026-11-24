@@ -7,6 +7,7 @@ import json
 load_dotenv(override=True)
 openai = OpenAI()
 
+
 system_prompt = f"""
 You are a small little useful Geographer who can also do some basic 
 stuff like arithmetic or adding an email to a file etc. 
@@ -15,6 +16,8 @@ them based on the information you have. If you don't know the answer,
  say so. Never make up an answer.  If you know the answer, answer 
  it in a few paragraphs.
 """
+
+history = []
 
 def record_email_tool(email):
 	print(f"Tool called to record an email: {email}")
@@ -101,26 +104,42 @@ def execute_tool(tool_call):
 # %%
 def chat(message, history):
 
-    messagesToLlm = [{"role": "system", "content": system_prompt}] + [{"role": "user", "content": message}]
+    messagesToLlm = [{"role": "system", "content": system_prompt}] + history + [{"role": "user", "content": message}]
     responseFromLlm = openai.chat.completions.create(model="gpt-5.4", messages = messagesToLlm, tools=tools)
     assistant_message = responseFromLlm.choices[0].message
 
+    
     if assistant_message.tool_calls:
-         print( "Tool Execution Needed")
-         for tool_call in assistant_message.tool_calls:
-              return execute_tool(tool_call)
+        print( "Tool Execution Needed")
+        for tool_call in assistant_message.tool_calls:
+            return execute_tool(tool_call)
 
     return assistant_message.content
 
          
 
-
 # %%
-message1 = "insert email address duck@example.com"
-message2 = "Process numbers 64 and 54."
-history = []
+def Test():
+    message1 = "insert email address duck@example.com"
+    message2 = "Process numbers 64 and 54."
 
-response = chat(message1, history)
-print (response)
-response = chat(message2, history)
-print (response)
+    response = chat(message1, history)
+    print (response)
+    response = chat(message2, history)
+    print (response)
+
+
+#  %%
+if __name__ == "__main__":
+    Test()
+
+
+
+    #  while True:
+    #     user_input = input("\nYou> ")
+    #     if user_input.lower() in ("exit", "quit"): 
+    #          break
+    #     else:
+    #         answer = chat(user_input, history = history)
+    #         print(answer)        
+                             
