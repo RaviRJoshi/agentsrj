@@ -143,6 +143,7 @@ def chat(message):
             model=MODEL,
             messages=messagesToAssistant,
             tools=TOOLS,
+            parallel_tool_calls=False
         )
         assistant_message = responseFromAssistant.choices[0].message
 
@@ -169,36 +170,13 @@ def chat(message):
 
     return "Maximum tool execution iterations reached."
 
-         
-
-
-
-# %% Test
-def Test(message):
-    history.clear()
-    response = chat(message)
-    print (response)  
-
 
 
 # _______________________________________________________
 #  %%
 if __name__ == "__main__":
-
-
-    message = "Process email duck@example.com"
-    Test(message)
-    print("-----------------------")
-    print(history)
-    print("-----------------------")
-
-
-
-    #  while True:
-    #     user_input = input("\nYou> ")
-    #     if user_input.lower() in ("exit", "quit"): 
-    #          break
-    #     else:
-    #         answer = chat(user_input, history = history)
-    #         print(answer)        
-                             
+  # print("-----------------------")
+  message = "Process order ORD101"
+  history.clear()
+  print(chat(message))
+  # print("-----------------------")
