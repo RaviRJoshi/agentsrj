@@ -148,8 +148,8 @@ def Test():
 
     response = chat(message1)
     print (response)
-#    response = chat(message2)
-#    print (response)
+    response = chat(message2)
+    print (response)
 
 
 #  %%
