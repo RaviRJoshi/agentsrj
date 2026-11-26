@@ -31,6 +31,12 @@ def process_numbers_tool(a: int, b: int) -> int:
         return a * b
     return total
 
+def calculate_discount_tool(amount: int) -> int:
+    return amount * 0.1 if amount > 1000 else 0
+
+def process_order_tool(amount: int) -> int:
+    return amount - calculate_discount_tool(amount)
+
 
 record_email_tool_json = {
   "type": "function",
@@ -66,11 +72,58 @@ process_numbers_tool_json = {
         }
   }
 
-tools = [record_email_tool_json, process_numbers_tool_json]
+process_order_tool_json = {
+  "type": "function",
+  "function": {
+    "name": "process_order_tool",
+    "description": "",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "amount"
+      ],
+      "additionalProperties": False
+    },
+    "strict": True
+  }
+}
+
+calculate_discount_tool_json = {
+  "type": "function",
+  "function": {
+    "name": "calculate_discount_tool",
+    "description": "",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "amount"
+      ],
+      "additionalProperties": False
+    },
+    "strict": True
+  }
+}
+
+TOOLS = [record_email_tool_json, 
+         process_numbers_tool_json,
+         process_order_tool_json,
+         calculate_discount_tool_json]
 
 available_functions = {
     "process_numbers_tool": process_numbers_tool,
-    "record_email_tool": record_email_tool
+    "record_email_tool": record_email_tool,
+    "process_order_tool": process_order_tool,
+    "calculate_discount_tool": calculate_discount_tool
 }
 
 
@@ -111,7 +164,7 @@ def chat(message):
         responseFromAssistant = openai.chat.completions.create(
             model=MODEL,
             messages=messagesToAssistant,
-            tools=tools,
+            tools=TOOLS,
         )
         assistant_message = responseFromAssistant.choices[0].message
 
@@ -141,23 +194,26 @@ def chat(message):
          
 
 # %%
-def Test():
+def Test(message):
     history.clear()
-    message1 = "insert email address duck@example.com"
-    message2 = "Process numbers 64 and 54."
-
-    response = chat(message1)
-    print (response)
-    response = chat(message2)
-    print (response)
-
+    response = chat(message)
+    print (response)  
 
 #  %%
 if __name__ == "__main__":
-    Test()
+
+    # message = "Please process an order of 1500 dollars."
+    # Test(message)
+    # print("-----------------------")
+    # print(history)
+    # print("-----------------------")
+
+    message = "Process email duck@example.com"
+    Test(message)
     print("-----------------------")
     print(history)
     print("-----------------------")
+
 
 
     #  while True:

@@ -16,7 +16,11 @@ def record_email_tool(email):
 		f.write(email + "\n")
 	return "Email Received"
 
+def process_discount_tool(amount: int) -> int:
+    return amount * 0.1 if amount > 1000 else 0
 
+def process_order_tool(amount: int) -> int:
+    return amount - process_discount_tool(amount)
 
 def python_type_to_json_type(annotation):
     mapping = {
@@ -65,8 +69,8 @@ def function_to_tool(func):
     }
 
 if __name__ == "__main__":
-    tool_schema = function_to_tool(process_numbers)
+    tool_schema = function_to_tool(process_order_tool)
     print(json.dumps(tool_schema, indent=2))
 
-    tool_schema = function_to_tool (record_email_tool)
+    tool_schema = function_to_tool (process_discount_tool)
     print(json.dumps(tool_schema, indent=2))
