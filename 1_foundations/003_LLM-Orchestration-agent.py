@@ -14,7 +14,7 @@ You have access to the following tools:
    Retrieves order details using an order ID.
 
 2. calculate_discount_tool:
-   Calculates a 10% discount on an amount.
+   Calculates a 10% discount on an amount if the amount exceeds 1000.
 
 Your workflow:
 
@@ -54,7 +54,7 @@ def get_order_details_tool(order_id: str) -> dict:
     }
 
 def calculate_discount_tool(amount: float) -> float:
-    return amount * 0.10 if amount > 1000 else 0.0
+    return amount * 0.10
 
 get_order_details_tool_json = {
   "type": "function",
