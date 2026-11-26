@@ -16,6 +16,9 @@ You have access to the following tools:
 2. calculate_discount_tool:
    Calculates a 10% discount on an amount if the amount exceeds 1000.
 
+3. send_order_confirmation_tool_json:
+   Sends an order confirmation for the given order ID and final amount.
+
 Your workflow:
 
 1. First retrieve the order details.
@@ -23,7 +26,8 @@ Your workflow:
 3. If the amount exceeds 1000, call calculate_discount_tool.
 4. If the amount is 1000 or less, do not call calculate_discount_tool.
 5. Calculate the final amount.
-6. Present the order details, discount and final amount.
+6. Send the order confirmation using send_order_confirmation_tool_json with the order ID and final amount.
+7. Present the order details, discount and final amount.
 
 Important:
 - Always retrieve order details before calculating a discount.
@@ -35,6 +39,12 @@ Important:
 history = []
 load_dotenv(override=True)
 openai = OpenAI()
+
+def send_order_confirmation_tool(order_id: str, final_amount: float) -> str:
+    print(f"Tool called to send order confirmation for order {order_id} with final amount {final_amount}")
+    # Simulate sending an email or notification
+    return f"Order confirmation sent for order {order_id} with final amount {final_amount}"
+
 
 def get_order_details_tool(order_id: str) -> dict:
 
@@ -94,12 +104,39 @@ calculate_discount_tool_json = {
   }
 }
 
+send_order_confirmation_tool_json = {
+  "type": "function",
+  "function": {
+    "name": "send_order_confirmation_tool",
+    "description": "Send an order confirmation for the given order ID and final amount.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "order_id": {
+          "type": "string"
+        },
+        "final_amount": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "order_id",
+        "final_amount"
+      ],
+      "additionalProperties": False
+    },
+    "strict": True
+  }
+}
+
 TOOLS = [get_order_details_tool_json,
-         calculate_discount_tool_json]
+         calculate_discount_tool_json,
+         send_order_confirmation_tool_json]
 
 available_functions = {
     "get_order_details_tool": get_order_details_tool,
-    "calculate_discount_tool": calculate_discount_tool
+    "calculate_discount_tool": calculate_discount_tool,
+    'send_order_confirmation_tool': send_order_confirmation_tool
 }
 
 
