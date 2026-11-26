@@ -3,24 +3,22 @@ import inspect
 import typing
 import json
 
-# ___________________
-def process_numbers(a: int, b: int) -> int:
-    total = a + b
-    if total > 100:
-        return a * b
-    return total
+def get_order_details_tool(order_id: str) -> dict:
 
-def record_email_tool(email):
-	print(f"Tool called to record an email: {email}")
-	with open("emails.txt", "a", encoding="utf-8") as f:
-		f.write(email + "\n")
-	return "Email Received"
+    # Simulated database
+    orders = {
+        "ORD101": 2000,
+        "ORD102": 500,
+        "ORD103": 1500
+    }
 
-def process_discount_tool(amount: int) -> int:
-    return amount * 0.1 if amount > 1000 else 0
+    if order_id not in orders:
+        return {"error": "Order not found"}
 
-def process_order_tool(amount: int) -> int:
-    return amount - process_discount_tool(amount)
+    return {
+        "order_id": order_id,
+        "amount": orders[order_id]
+    }
 
 def python_type_to_json_type(annotation):
     mapping = {
@@ -69,8 +67,6 @@ def function_to_tool(func):
     }
 
 if __name__ == "__main__":
-    tool_schema = function_to_tool(process_order_tool)
+    tool_schema = function_to_tool(get_order_details_tool)
     print(json.dumps(tool_schema, indent=2))
 
-    tool_schema = function_to_tool (process_discount_tool)
-    print(json.dumps(tool_schema, indent=2))

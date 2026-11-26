@@ -6,86 +6,59 @@ import json
 MODEL="gpt-5.5"
 
 system_prompt = f"""
-You are a small little useful Geographer who can also do some basic 
-arithmetic stuff or adding an email to a file etc. 
-I'll be asking you questions about a place, and you will answer 
-them based on the information you have. If you don't know the answer,
- say so. Never make up an answer.  If you know the answer, answer 
- it in a few paragraphs.
+You are a small little useful assistant  
+
+You have access to a few tools that can help you do your job.
+You can call these tools when you need to perform specific tasks.
+The tools you have access to are:
+1. get_order_details_tool(order_id: str) -> dict
+   - This tool retrieves the details of an order based on the provided order ID.
+2. calculate_discount_tool(amount: float) -> float
+   - This tool calculates a discount based on the provided amount.
+3. process_order_tool(amount: float) -> float
+   - This tool processes an order based on the provided amount.
+When you need to use a tool, you will call it with the appropriate parameters.
+
 """
 
 history = []
 load_dotenv(override=True)
 openai = OpenAI()
 
+def get_order_details_tool(order_id: str) -> dict:
 
-def record_email_tool(email):
-	print(f"Tool called to record an email: {email}")
-	with open("emails.txt", "a", encoding="utf-8") as f:
-		f.write(email + "\n")
-	return "Email Received"
+    # Simulated database
+    orders = {
+        "ORD101": 2000,
+        "ORD102": 500,
+        "ORD103": 1500
+    }
 
-def process_numbers_tool(a: int, b: int) -> int:
-    total = a + b
-    if total > 100:
-        return a * b
-    return total
+    if order_id not in orders:
+        return {"error": "Order not found"}
 
-def calculate_discount_tool(amount: int) -> int:
-    return amount * 0.1 if amount > 1000 else 0
+    return {
+        "order_id": order_id,
+        "amount": orders[order_id]
+    }
 
-def process_order_tool(amount: int) -> int:
-    return amount - calculate_discount_tool(amount)
+def calculate_discount_tool(amount: float) -> float:
+    return amount * 0.10 if amount > 1000 else 0.0
 
-
-record_email_tool_json = {
-  "type": "function",
-  "function": {	
-      "name": "record_email_tool",
-      "description": "Use this tool to record that a user provided their address",
-      "parameters": {
-        "type": "object",
-        "properties": {
-          "email": { "type": "string", "description": "The email address of this user"}
-        },
-        "required": ["email"],
-        "additionalProperties": False
-      }
-  }
-}
-
-process_numbers_tool_json = {
-     "type": "function",
-     "function": {
-        "name": "process_numbers_tool",
-        "description": "Add two numbers. If more than 100, multiply them",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "a": { "type": "number" },
-            "b": { "type": "number" }
-          },
-          "required": [  "a", "b" ],
-          "additionalProperties": False
-        },
-        "strict": True
-        }
-  }
-
-process_order_tool_json = {
+get_order_details_tool_json = {
   "type": "function",
   "function": {
-    "name": "process_order_tool",
-    "description": "",
+    "name": "get_order_details_tool",
+    "description": "Retrieve details of an order based on the provided order ID.",
     "parameters": {
       "type": "object",
       "properties": {
-        "amount": {
-          "type": "integer"
+        "order_id": {
+          "type": "string"
         }
       },
       "required": [
-        "amount"
+        "order_id"
       ],
       "additionalProperties": False
     },
@@ -97,12 +70,12 @@ calculate_discount_tool_json = {
   "type": "function",
   "function": {
     "name": "calculate_discount_tool",
-    "description": "",
+    "description": "IF the amount is greater than 1000, calculate a 10% discount, otherwise return 0",
     "parameters": {
       "type": "object",
       "properties": {
         "amount": {
-          "type": "integer"
+          "type": "number"
         }
       },
       "required": [
@@ -114,20 +87,16 @@ calculate_discount_tool_json = {
   }
 }
 
-TOOLS = [record_email_tool_json, 
-         process_numbers_tool_json,
-         process_order_tool_json,
+TOOLS = [get_order_details_tool_json,
          calculate_discount_tool_json]
 
 available_functions = {
-    "process_numbers_tool": process_numbers_tool,
-    "record_email_tool": record_email_tool,
-    "process_order_tool": process_order_tool,
+    "get_order_details_tool": get_order_details_tool,
     "calculate_discount_tool": calculate_discount_tool
 }
 
 
-# %%
+# %%  execute_tool
 def execute_tool(tool_call):
 
     # Extract function name
@@ -154,7 +123,9 @@ def execute_tool(tool_call):
 
 
 
-# %%
+
+
+# %% chat
 def chat(message):
     history.append({"role": "user", "content": message})
 
@@ -193,20 +164,20 @@ def chat(message):
 
          
 
-# %%
+
+
+# %% Test
 def Test(message):
     history.clear()
     response = chat(message)
     print (response)  
 
+
+
+# _______________________________________________________
 #  %%
 if __name__ == "__main__":
 
-    # message = "Please process an order of 1500 dollars."
-    # Test(message)
-    # print("-----------------------")
-    # print(history)
-    # print("-----------------------")
 
     message = "Process email duck@example.com"
     Test(message)
