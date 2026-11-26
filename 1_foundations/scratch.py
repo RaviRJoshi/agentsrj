@@ -1,16 +1,13 @@
 # %%
 from openai import OpenAI
 from dotenv import load_dotenv
-from openai import OpenAI
 import json
 
-load_dotenv(override=True)
-openai = OpenAI()
-
+MODEL="gpt-5.5"
 
 system_prompt = f"""
 You are a small little useful Geographer who can also do some basic 
-stuff like arithmetic or adding an email to a file etc. 
+arithmetic stuff or adding an email to a file etc. 
 I'll be asking you questions about a place, and you will answer 
 them based on the information you have. If you don't know the answer,
  say so. Never make up an answer.  If you know the answer, answer 
@@ -18,6 +15,9 @@ them based on the information you have. If you don't know the answer,
 """
 
 history = []
+load_dotenv(override=True)
+openai = OpenAI()
+
 
 def record_email_tool(email):
 	print(f"Tool called to record an email: {email}")
@@ -102,18 +102,18 @@ def execute_tool(tool_call):
 
 
 # %%
-def chat(message, history):
+def chat(message):
     history.append({"role": "user", "content": message})
 
     max_iterations = 10
     for _ in range(max_iterations):
-        messagesToLlm = [{"role": "system", "content": system_prompt}] + history
-        responseFromLlm = openai.chat.completions.create(
-            model="gpt-5.4",
-            messages=messagesToLlm,
+        messagesToAssistant = [{"role": "system", "content": system_prompt}] + history
+        responseFromAssistant = openai.chat.completions.create(
+            model=MODEL,
+            messages=messagesToAssistant,
             tools=tools,
         )
-        assistant_message = responseFromLlm.choices[0].message
+        assistant_message = responseFromAssistant.choices[0].message
 
         if assistant_message.tool_calls:
             print("Tool Execution Needed")
@@ -128,10 +128,9 @@ def chat(message, history):
                 except Exception as e:
                     tool_output = json.dumps({"success": False, "error": str(e)})
 
-                history.append({
-                    "role": "tool",
+                history.append({ "role": "tool", 
                     "tool_call_id": tool_call.id,
-                    "content": tool_output,
+                    "content": tool_output
                 })
         else:
             history.append({"role": "assistant", "content": assistant_message.content})
@@ -143,19 +142,22 @@ def chat(message, history):
 
 # %%
 def Test():
+    history.clear()
     message1 = "insert email address duck@example.com"
     message2 = "Process numbers 64 and 54."
 
-    response = chat(message1, history)
+    response = chat(message1)
     print (response)
-    response = chat(message2, history)
-    print (response)
+#    response = chat(message2)
+#    print (response)
 
 
 #  %%
 if __name__ == "__main__":
     Test()
+    print("-----------------------")
     print(history)
+    print("-----------------------")
 
 
     #  while True:
