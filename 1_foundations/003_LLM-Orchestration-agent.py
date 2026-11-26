@@ -5,20 +5,31 @@ import json
 
 MODEL="gpt-5.5"
 
-system_prompt = f"""
-You are a small little useful assistant  
+system_prompt = """
+You are an order processing assistant.
 
-You have access to a few tools that can help you do your job.
-You can call these tools when you need to perform specific tasks.
-The tools you have access to are:
-1. get_order_details_tool(order_id: str) -> dict
-   - This tool retrieves the details of an order based on the provided order ID.
-2. calculate_discount_tool(amount: float) -> float
-   - This tool calculates a discount based on the provided amount.
-3. process_order_tool(amount: float) -> float
-   - This tool processes an order based on the provided amount.
-When you need to use a tool, you will call it with the appropriate parameters.
+You have access to the following tools:
 
+1. get_order_details_tool:
+   Retrieves order details using an order ID.
+
+2. calculate_discount_tool:
+   Calculates a 10% discount on an amount.
+
+Your workflow:
+
+1. First retrieve the order details.
+2. Examine the returned order amount.
+3. If the amount exceeds 1000, call calculate_discount_tool.
+4. If the amount is 1000 or less, do not call calculate_discount_tool.
+5. Calculate the final amount.
+6. Present the order details, discount and final amount.
+
+Important:
+- Always retrieve order details before calculating a discount.
+- Never invent order amounts.
+- If an order is not found, report that fact.
+- Do not call calculate_discount_tool when it is not required.
 """
 
 history = []
@@ -57,9 +68,7 @@ get_order_details_tool_json = {
           "type": "string"
         }
       },
-      "required": [
-        "order_id"
-      ],
+      "required": [ "order_id" ],
       "additionalProperties": False
     },
     "strict": True
@@ -78,9 +87,7 @@ calculate_discount_tool_json = {
           "type": "number"
         }
       },
-      "required": [
-        "amount"
-      ],
+      "required": [ "amount" ],
       "additionalProperties": False
     },
     "strict": True
