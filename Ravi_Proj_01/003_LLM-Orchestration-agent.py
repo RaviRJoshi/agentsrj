@@ -14,7 +14,7 @@ You have access to the following tools:
    Retrieves order details using an order ID.
 
 2. calculate_discount_tool:
-   Calculates a 10% discount on an amount if the amount exceeds 1000.
+   Calculates a 10% discount on an amount if the amount equals or exceeds 1000.
 
 3. send_order_confirmation_tool:
    Sends an order confirmation for the given order ID and final amount.
@@ -23,7 +23,7 @@ Your workflow:
 
 1. First retrieve the order details.
 2. Examine the returned order amount.
-3. If the amount exceeds 1000, call calculate_discount_tool.
+3. If the amount equals or exceeds 1000, call calculate_discount_tool.
 4. If the amount is 1000 or less, do not call calculate_discount_tool.
 5. Calculate the final amount.
 6. Send the order confirmation using send_order_confirmation_tool with the order ID and final amount.
@@ -52,7 +52,8 @@ def get_order_details_tool(order_id: str) -> dict:
     orders = {
         "ORD101": 2000,
         "ORD102": 500,
-        "ORD103": 1500
+        "ORD103": 1500,
+        "ORD104": 1000
     }
 
     if order_id not in orders:
@@ -64,7 +65,7 @@ def get_order_details_tool(order_id: str) -> dict:
     }
 
 def calculate_discount_tool(amount: float) -> float:
-    return amount * 0.10
+    return amount * 0.10 if amount >= 1000.0 else 0.0
 
 get_order_details_tool_json = {
   "type": "function",
@@ -171,6 +172,7 @@ def execute_tool(tool_call):
 
 # %% chat
 def chat(message):
+    history.clear()
     history.append({"role": "user", "content": message})
 
     max_iterations = 10
@@ -213,7 +215,6 @@ def chat(message):
 #  %%
 if __name__ == "__main__":
   # print("-----------------------")
-  message = "Process order ORD101"
-  history.clear()
+  message = "Process order ORD104"
   print(chat(message))
   # print("-----------------------")
