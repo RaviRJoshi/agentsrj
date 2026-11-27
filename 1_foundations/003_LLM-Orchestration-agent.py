@@ -16,7 +16,7 @@ You have access to the following tools:
 2. calculate_discount_tool:
    Calculates a 10% discount on an amount if the amount exceeds 1000.
 
-3. send_order_confirmation_tool_json:
+3. send_order_confirmation_tool:
    Sends an order confirmation for the given order ID and final amount.
 
 Your workflow:
@@ -26,7 +26,7 @@ Your workflow:
 3. If the amount exceeds 1000, call calculate_discount_tool.
 4. If the amount is 1000 or less, do not call calculate_discount_tool.
 5. Calculate the final amount.
-6. Send the order confirmation using send_order_confirmation_tool_json with the order ID and final amount.
+6. Send the order confirmation using send_order_confirmation_tool with the order ID and final amount.
 7. Present the order details, discount and final amount.
 
 Important:
