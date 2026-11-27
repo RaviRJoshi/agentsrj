@@ -89,7 +89,7 @@ calculate_discount_tool_json = {
   "type": "function",
   "function": {
     "name": "calculate_discount_tool",
-    "description": "IF the amount is greater than 1000, calculate a 10% discount, otherwise return 0",
+    "description": "Calculate discount on an order",
     "parameters": {
       "type": "object",
       "properties": {
