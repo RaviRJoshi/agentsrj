@@ -3,22 +3,6 @@ import inspect
 import typing
 import json
 
-def get_order_details_tool(order_id: str) -> dict:
-
-    # Simulated database
-    orders = {
-        "ORD101": 2000,
-        "ORD102": 500,
-        "ORD103": 1500
-    }
-
-    if order_id not in orders:
-        return {"error": "Order not found"}
-
-    return {
-        "order_id": order_id,
-        "amount": orders[order_id]
-    }
 
 def python_type_to_json_type(annotation):
     mapping = {
