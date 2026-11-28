@@ -1,5 +1,5 @@
-# %%
-from openai import OpenAI
+# If you don't know what any of these packages do - you can always ask ChatGPT for a guide!
+
 from dotenv import load_dotenv
 from openai import OpenAI
 from pypdf import PdfReader
@@ -7,11 +7,9 @@ from IPython.display import Markdown, display
 import gradio as gr
 import json
 
-# %%
 load_dotenv(override=True)
 openai = OpenAI()
 
-# %%
 reader = PdfReader("twin/linkedin.pdf")
 linkedin = ""
 for page in reader.pages:
@@ -19,72 +17,82 @@ for page in reader.pages:
     if text:
         linkedin += text
 
-#print(linkedin)
-
-
-# %%
 with open("twin/summary.txt", "r", encoding="utf-8") as f:
     summary = f.read()
 
-# %%
+messages = [
+    {"role": "system", "content": "You are a helpful assistant"},
+    {"role": "user", "content": "Hi, my name is Arjun"}
+]
+
+response = openai.chat.completions.create(model="gpt-5.4", messages=messages)
+print(response.choices[0].message.content)
+
+messages = [
+    {"role": "system", "content": "You are a snarky, witty assistant"},
+    {"role": "user", "content": "What's my name?"}
+]
+
+response = openai.chat.completions.create(model="gpt-5.4-nano", messages=messages)
+print(response.choices[0].message.content)
+
+messages = [
+    {"role": "system", "content": "You are a snarky, witty assistant"},
+    {"role": "user", "content": "Hi, my name is Ed"},
+    {"role": "assistant", "content": "Well hi there, Ed. It's nice to meet you."},
+    {"role": "user", "content": "What's my name?"}
+]
+response = openai.chat.completions.create(model="gpt-5.4-nano", messages=messages)
+print(response.choices[0].message.content)
+
 system_prompt = f"""
-You are a small little useful Geographer who can also do some basic stuff like arithmetic or adding an email to a file etc. I'll be asking you questions about a place, and you will answer them based on the information 
-you have. If you don't know the answer, say so. Never make up an answer. If you know the answer, answer it in a few paragraphs.
+
+# Your role
+
+You are a digital twin running on a website, chatting with visitors of the website.
+You represent the person who's website you are on.
+You answer questions related to their career, background, skills and experience.
+
+Here are the details of the person you are representing:
+
+{summary}
+
+If asked, you explain clearly that you are an AI that is the digital twin of this person.
+
+# Context
+
+Here is a summary of the person's LinkedIn profile so that you can answer questions:
+
+{linkedin}
+
+# Rules
+
+Engage with the user. Be professional and engaging, as if talking to a potential client or future employer who came across the website.
+Avoid answering questions that are not related to the user's career, background, skills and experience;
+steer the conversation back to professional topics.
+
+Always stay in character as the digital twin of the person you are representing. Represent the person.
+
+IMPORTANT: If you don't know the answer, say so. Never make up an answer.
+If the user asks about something not in the context, say that you don't know.
 """
 
-# %%
+
+display(Markdown(system_prompt))
+
 messages = [
-    {"role": "system", "content": system_prompt}
- #   ,     {"role": "user", "content": "Tell me about bangalore, Karnataka?"}
-]      
+    {"role": "system", "content": system_prompt},
+    {"role": "user", "content": "Hi - please tell me about yourself"},
+]
 
-# %%
-def record_email_tool(email):
-	print(f"Tool called to record an email: {email}")
-	with open("emails.txt", "a", encoding="utf-8") as f:
-		f.write(email + "\n")
-	return "Email Received"
+response = openai.chat.completions.create(model="gpt-5.4-mini", messages=messages)
+display(Markdown(response.choices[0].message.content))
 
-# %%
-#record_email_tool("ravi@duck.com")
-
-# %%
-record_email_tool_json = {
-	"name": "record_email_tool",
-	"description": "Use this tool to record that a user provided their address",
-	"parameters": {
-		"type": "object",
-		"properties": {
-			"email": { "type": "string", "description": "The email address of this user"}
-		},
-		"required": ["email"],
-		"additionalProperties": False
-	}
-}
-
-# %%
-tools = [{"type": "function", "function": record_email_tool_json}]
-
-# %%
-tools
-
-# %%
 def chat(message, history):
-	messages = [{"role": "system", "content": system_prompt}] + history + [{"role": "user", "content": message}]
-	response = openai.chat.completions.create(model="gpt-5.4", messages=messages, tools=tools)
-		 
-	if response.choices[0].finish_reason=="tool_calls":
-			message = response.choices[0].message
-			tool_call = message.tool_calls[0]
-			email = json.loads(tool_call.function.arguments).get("email")
-			record_email_tool(email)
-			messages.append(message)
-			messages.append({"role": "tool", "content": "Email recorded", "tool_call_id": tool_call.id})
-			response = openai.chat.completions.create(model="gpt-5.4", messages=messages, tools=tools)
-			
-	return response.choices[0].message.content
-
-# %%
-gr.ChatInterface(chat).launch(inbrowser=True)
+    messages = [{"role": "system", "content": system_prompt}] + history + [{"role": "user", "content": message}]
+    response = openai.chat.completions.create(model="gpt-5.4-mini", messages=messages)
+    return response.choices[0].message.content
 
 
+if __name__ == "__main__":	
+	chat("Please summarize who you are", [])

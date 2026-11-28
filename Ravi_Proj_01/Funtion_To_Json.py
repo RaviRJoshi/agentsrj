@@ -50,12 +50,13 @@ def function_to_tool(func):
         }
     }
 
-def send_order_confirmation_tool(order_id: str, final_amount: float) -> str:
-    print(f"Tool called to send order confirmation for order {order_id} with final amount {final_amount}")
-    # Simulate sending an email or notification
-    return f"Order confirmation sent for order {order_id} with final amount {final_amount}"
+
+def add_number_tool(num1, num2):
+    return num1 + num2
+
+
 
 if __name__ == "__main__":
-    tool_schema = function_to_tool(send_order_confirmation_tool)
+    tool_schema = function_to_tool(add_number_tool)
     print(json.dumps(tool_schema, indent=2))
 

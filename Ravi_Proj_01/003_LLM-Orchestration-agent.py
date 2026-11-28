@@ -64,8 +64,9 @@ def get_order_details_tool(order_id: str) -> dict:
         "amount": orders[order_id]
     }
 
-def calculate_discount_tool(amount: float) -> float:
-    return amount * 0.10 if amount >= 1000.0 else 0.0
+def calculate_discount_tool(amount: float) -> dict:
+  return {"discount": amount * 0.10 if amount >= 1000 else 0.0, "threshold": 1000}
+
 
 get_order_details_tool_json = {
   "type": "function",
@@ -90,7 +91,7 @@ calculate_discount_tool_json = {
   "type": "function",
   "function": {
     "name": "calculate_discount_tool",
-    "description": "Calculate discount on an order",
+    "description": "",
     "parameters": {
       "type": "object",
       "properties": {
@@ -98,7 +99,9 @@ calculate_discount_tool_json = {
           "type": "number"
         }
       },
-      "required": [ "amount" ],
+      "required": [
+        "amount"
+      ],
       "additionalProperties": False
     },
     "strict": True
@@ -146,7 +149,7 @@ def execute_tool(tool_call):
 
     # Extract function name
     function_name = tool_call.function.name
-    print(f"\nExecuting tool: {function_name}")
+    print(f"Executing tool: {function_name}")
 
     # Extract JSON arguments
     arguments     = json.loads( tool_call.function.arguments )
@@ -214,7 +217,14 @@ def chat(message):
 # _______________________________________________________
 #  %%
 if __name__ == "__main__":
-  # print("-----------------------")
-  message = "Process order ORD104"
-  print(chat(message))
-  # print("-----------------------")
+    cases = [
+        ("Process order ORD101", "expect discount applied, 1800 confirmed"),
+        ("Process order ORD102", "expect NO discount, 500 confirmed"),
+        ("Process order ORD103", "expect discount applied, 1350 confirmed"),
+        ("Process order ORD999", "expect 'not found', no confirmation sent"),
+    ]
+
+    for case, expectation in cases:
+        print(f"\n\nCase: {case} | Expectation: {expectation}")
+        result = chat(case)
+        print(f"Result: {result}")
